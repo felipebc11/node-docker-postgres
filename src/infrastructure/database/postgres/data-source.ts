@@ -4,6 +4,8 @@ import { DataSource } from 'typeorm';
 import { User } from '../../../domain/entity/User';
 import { Address } from '../../../domain/entity/Address';
 
+const isDevEnvironment = process.env.NODE_ENV === 'development';
+
 export const postgresDataSource = new DataSource({
   type: 'postgres',
   host: process.env.PG_DB_HOST,
@@ -14,7 +16,11 @@ export const postgresDataSource = new DataSource({
   synchronize: false,
   logging: false,
   entities: [Address, User],
-  migrations: ['src/infrastructure/database/postgres/migrations/*.ts'],
+  migrations: [
+    isDevEnvironment
+      ? 'src/infrastructure/database/postgres/migrations/*.ts'
+      : 'build/src/infrastructure/database/postgres/migrations/*.js',
+  ],
   migrationsRun: false,
   subscribers: [],
 });

@@ -1,17 +1,42 @@
+import { inject, injectable } from 'inversify';
 
-import { inject, injectable } from 'inversify'
-
-import { User } from '../domain/models/user';
-import { UserRepository } from '../service/repositories/user.repository';
+import { UserRepository } from '../infrastructure/repositories/user.repository';
+import { User } from '../domain/entity/User';
+import { CreateUserParams } from '../infrastructure/repositories/types/create-user.type';
+import { AuthService } from '../infrastructure/auth/auth.service';
+import { DefaultErrorMessages } from '../domain/enums/default-messages/default-error-messages';
 
 @injectable()
 export class UserApplication {
-    constructor(@inject(UserRepository) private userRepository: UserRepository) {
+  constructor(@inject(UserRepository) private userRepository: UserRepository) {}
+
+  public async getUser(params: Partial<User>): Promise<User> {
+    const user = await this.userRepository.findOne(params);
+
+    if (!user) {
+      throw new Error(DefaultErrorMessages.USER_NOT_FOUND);
     }
 
-    public async getUsers(): Promise<Array<User>> {
-      return [
-        await this.userRepository.findOne(),
-      ]
+    return user;
+  }
+
+  public async createUser(userData: CreateUserParams): Promise<string> {
+    const hashedPassword = await AuthService.hashPassword(userData.password);
+
+    return await this.userRepository.save({ ...userData, password: hashedPassword });
+  }
+
+  public async login(email: string, password: string): Promise<string> {
+    const user = await this.getUser({ email });
+
+    const isPasswordValid = await AuthService.verifyPassword(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error(DefaultErrorMessages.INVALID_PASSWORD);
     }
+
+    const token = await AuthService.createToken({ email, id: String(user.uuid) });
+
+    return token;
+  }
 }
