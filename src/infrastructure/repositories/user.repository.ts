@@ -5,6 +5,7 @@ import { User } from '../../domain/entity/User';
 import { CreateUserParams } from './types/create-user.type';
 import { PostgresConnection } from '../../infrastructure/database/postgres/postgres-connection';
 import { DefaultSuccessMessages } from '../../domain/enums/default-messages/default-success-messages';
+import { NotFoundException } from '../../domain/exceptions/Exceptions';
 
 @injectable()
 export class UserRepository {
@@ -14,7 +15,7 @@ export class UserRepository {
     return this.connection.getRepository(User);
   }
 
-  public async findOne(params: Partial<User>): Promise<User | null> {
+  public async findOne(params: Partial<User>): Promise<User> {
     const user = await this.repository.findOne({
       where: {
         ...params,
@@ -27,7 +28,9 @@ export class UserRepository {
       },
     });
 
-    return user ?? null;
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 
   public async save(params: CreateUserParams): Promise<string> {

@@ -5,6 +5,7 @@ import { User } from '../domain/entity/User';
 import { CreateUserParams } from '../infrastructure/repositories/types/create-user.type';
 import { AuthService } from '../infrastructure/auth/auth.service';
 import { DefaultErrorMessages } from '../domain/enums/default-messages/default-error-messages';
+import { UnauthorizedException } from '../domain/exceptions/Exceptions';
 
 @injectable()
 export class UserApplication {
@@ -12,10 +13,6 @@ export class UserApplication {
 
   public async getUser(params: Partial<User>): Promise<User> {
     const user = await this.userRepository.findOne(params);
-
-    if (!user) {
-      throw new Error(DefaultErrorMessages.USER_NOT_FOUND);
-    }
 
     return user;
   }
@@ -32,7 +29,7 @@ export class UserApplication {
     const isPasswordValid = await AuthService.verifyPassword(password, user.password);
 
     if (!isPasswordValid) {
-      throw new Error(DefaultErrorMessages.INVALID_PASSWORD);
+      throw new UnauthorizedException(DefaultErrorMessages.INVALID_PASSWORD);
     }
 
     const token = await AuthService.createToken({ email, id: String(user.uuid) });

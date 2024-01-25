@@ -2,8 +2,8 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
 export class AuthService {
-  private static secret = process.env.JWT_SECRET ?? '';
-  private static timeToExpire = process.env.JWT_EXPIRE ?? '1h';
+  private static secret = process.env.JWT_SECRET ?? 'secret';
+  private static timeToExpire = process.env.JWT_EXPIRE ?? '1d';
 
   public static async hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, 10);

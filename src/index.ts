@@ -1,7 +1,10 @@
-import "reflect-metadata"
+import 'reflect-metadata';
+import dotenv from 'dotenv';
+dotenv.config();
 
-import {Bootstrap} from './app';
+import { iocContainer } from './ioc';
+import { Bootstrap } from './app';
 
-const bootstrap = new Bootstrap();
+const bootstrap = iocContainer.get<Bootstrap>(Bootstrap);
 
-bootstrap.startHttpServer();
+bootstrap.start();
