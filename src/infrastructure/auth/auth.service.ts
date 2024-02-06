@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
+import { Roles } from '../../domain/enums/roles';
+
 export class AuthService {
   private static secret = process.env.JWT_SECRET ?? 'secret';
   private static timeToExpire = process.env.JWT_EXPIRE ?? '1d';
@@ -13,7 +15,7 @@ export class AuthService {
     return await bcrypt.compare(password, hashedPassword);
   }
 
-  public static async createToken(payload: { email: string; id: string }) {
+  public static async createToken(payload: { email: string; id: string; scopes: Roles[] }) {
     return jwt.sign(payload, this.secret, { expiresIn: this.timeToExpire });
   }
 }

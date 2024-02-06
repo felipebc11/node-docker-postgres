@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne } from 'typeorm';
 
 import { Address } from './Address';
+import { Roles } from '../enums/roles';
 
 @Entity()
 export class User {
@@ -33,4 +34,7 @@ export class User {
 
   @Column()
     password: string;
+
+  @Column({ enum: Roles, default: Roles.USER })
+    role: Roles;
 }

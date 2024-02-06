@@ -32,7 +32,7 @@ export class UserApplication {
       throw new UnauthorizedException(DefaultErrorMessages.INVALID_PASSWORD);
     }
 
-    const token = await AuthService.createToken({ email, id: String(user.uuid) });
+    const token = await AuthService.createToken({ email, id: String(user.uuid), scopes: [user.role] });
 
     return token;
   }

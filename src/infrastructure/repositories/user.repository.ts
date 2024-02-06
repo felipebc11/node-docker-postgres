@@ -3,9 +3,10 @@ import { inject, injectable } from 'inversify';
 
 import { User } from '../../domain/entity/User';
 import { CreateUserParams } from './types/create-user.type';
-import { PostgresConnection } from '../../infrastructure/database/postgres/postgres-connection';
-import { DefaultSuccessMessages } from '../../domain/enums/default-messages/default-success-messages';
 import { NotFoundException } from '../../domain/exceptions/Exceptions';
+import { PostgresConnection } from '../../infrastructure/database/postgres/postgres-connection';
+import { DefaultErrorMessages } from '../../domain/enums/default-messages/default-error-messages';
+import { DefaultSuccessMessages } from '../../domain/enums/default-messages/default-success-messages';
 
 @injectable()
 export class UserRepository {
@@ -22,25 +23,20 @@ export class UserRepository {
       },
       join: {
         alias: 'user',
-        innerJoinAndSelect: {
+        leftJoinAndSelect: {
           address: 'user.address',
         },
       },
     });
 
-    if (!user) throw new NotFoundException('User not found');
+    if (!user) throw new NotFoundException(DefaultErrorMessages.USER_NOT_FOUND);
 
     return user;
   }
 
   public async save(params: CreateUserParams): Promise<string> {
-    try {
-      await this.repository.save(params);
+    await this.repository.save(params);
 
-      return DefaultSuccessMessages.USER_CREATED_SUCCESSFULLY;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+    return DefaultSuccessMessages.USER_CREATED_SUCCESSFULLY;
   }
 }

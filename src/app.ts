@@ -9,7 +9,8 @@ import { HandleGeneralErrors } from './infrastructure/helpers/handle-errors';
 @injectable()
 export class Bootstrap {
   private port = process.env.HTTP_SEVER_PORT || 3000;
-  public app = express();
+  private app = express();
+  private httpServer: ReturnType<express.Express['listen']>;
 
   constructor(
     @inject(HandleGeneralErrors) private readonly handleGeneralErrors: HandleGeneralErrors,
@@ -32,13 +33,14 @@ export class Bootstrap {
     RegisterRoutes(this.app);
 
     this.app.use((err: Error, _: ExRequest, res: ExResponse, next: NextFunction): ExResponse | void => {
-
       this.handleGeneralErrors.handleError(err, res);
 
       next();
     });
 
-    this.app.listen(this.port, () => console.log(`Server is listening at http://localhost:${this.port}`));
+    this.httpServer = this.app.listen(this.port, () =>
+      console.log(`Server is listening at http://localhost:${this.port}`),
+    );
   }
 
   private async startDatabaseConnection() {
@@ -48,5 +50,10 @@ export class Bootstrap {
   public async start() {
     await this.startDatabaseConnection();
     this.startHttpServer();
+  }
+
+  public stop() {
+    this.postgresConnection.closeConnection();
+    this.httpServer.close();
   }
 }
