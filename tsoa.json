@@ -10,6 +10,14 @@
   },
   "routes": {
     "routesDir": "build",
-    "iocModule": "src/ioc"
+    "iocModule": "src/ioc",
+    "authenticationModule": "src/infrastructure/auth/authentication"
+  },
+  "securityDefinitions": {
+    "jwt": {
+      "type": "bearerAuth",
+      "name": "Authorization",
+      "in": "header"
+    }
   }
 }

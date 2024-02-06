@@ -21,7 +21,7 @@ services:
       PG_DB_SSL: 'false'
       JWT_SECRET: 'secret'
       JWT_EXPIRE: '1h'
-      NODE_env: development
+      NODE_ENV: development
       
     ports:
       - 3000:3000
@@ -60,3 +60,28 @@ services:
       - pg-admin-data:/var/lib/pgadmin
     depends_on:
       - postgres-db
+
+  tests: 
+    image: node:18.12.0-alpine
+    container_name: test
+    working_dir: /tests
+    command: sh -c "npm run test:system"
+    environment:
+      HTTP_SEVER_PORT: 3000
+      PG_DB_NAME: db-node
+      PG_DB_HOST: postgres-db
+      PG_DB_PORT: 5432
+      PG_DB_USER: postgres
+      PG_DB_PASSWORD: 1234
+      PG_DB_SSL: 'false'
+      JWT_SECRET: 'secret'
+      JWT_EXPIRE: '1h'
+      NODE_ENV: development
+      ADMIN_USER_EMAIL: 'felipebc@gmail.com'
+      ADMIN_USER_PASSWORD: '12345'
+
+    volumes:
+      - ./:/tests
+    depends_on:
+      - postgres-db
+      - pgadmin
